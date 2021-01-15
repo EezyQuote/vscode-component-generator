@@ -1,0 +1,15 @@
+interface {componentName}Props{
+  foo:string
+}
+
+const {componentName} = (props:{componentName}Props) => (
+  <div className="{componentName}-component">
+    {props.foo}
+  </div>
+);
+
+{componentName}.defaultProps = {
+  foo: 'bar',
+};
+
+ export default {componentName}

@@ -1,0 +1,17 @@
+import { InferGetServerSidePropsType } from {quotes}next{quotes};
+
+export default function {pageName}Page(props: InferGetServerSidePropsType<typeof getServerSideProps>){
+  return (
+    <div className="{pageKebabName}-page">
+      Hello SSR Page
+    </div>
+  )
+}
+
+export async function getServerSideProps() {
+  return {
+    props: {
+      foo:"bar"
+    },
+  }
+}

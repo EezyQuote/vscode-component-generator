@@ -1,16 +1,12 @@
-import React from {quotes}react{quotes};
-//import { Test } from './{componentName}.styles';
-
 interface {componentName}Props{
   foo:string
 }
 
 const {componentName} = (props:{componentName}Props) => (
-  <div className="{componentName}Wrapper">
+  <div className="{componentName}-component">
     {props.foo}
   </div>
 );
-
 
 {componentName}.defaultProps = {
   foo: 'bar',

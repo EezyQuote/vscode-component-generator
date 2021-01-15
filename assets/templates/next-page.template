@@ -1,0 +1,10 @@
+interface {pageName}PageProps{ }
+
+export default function {pageName}Page(props: {pageName}PageProps){
+  return (
+    <div className="{pageKebabName}-page">
+      Hello Page
+    </div>
+  )
+}
+

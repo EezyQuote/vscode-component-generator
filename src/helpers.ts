@@ -2,7 +2,7 @@ import { workspace, Uri, window } from 'vscode';
 import * as fse from 'fs-extra';
 import * as fs from 'fs';
 import * as path from 'path';
-import { pascalCase } from 'change-case';
+import { pascalCase, paramCase } from 'change-case';
 import { Observable } from 'rxjs';
 import {
   IndexInterface,
@@ -14,165 +14,230 @@ import GlobalInterface from './interfaces/global.interface';
 // import { Config as ConfigInterface } from './config.interface';
 
 export class FileHelper {
-    private static assetRootDir: string = path.join(__dirname, '../../assets');
+  private static assetRootDir: string = path.join(__dirname, '../../assets');
 
-    private static createFile = <(file: string, data: string) => Observable<{}>>Observable.bindNodeCallback(fse.outputFile);
+  private static createFile = <(file: string, data: string) => Observable<{}>>(
+    Observable.bindNodeCallback(fse.outputFile)
+  );
 
-    public static createComponentDir(uri: any, componentName: string): string {
-        let contextMenuSourcePath;
-        const globalConfig: GlobalInterface = getConfig().get('global');
+  public static getContextMenuSourcePath(uri: any): string {
+    let contextMenuSourcePath;
 
-        if (uri && fs.lstatSync(uri.fsPath).isDirectory()) {
-            contextMenuSourcePath = uri.fsPath;
-        } else if (uri) {
-            contextMenuSourcePath = path.dirname(uri.fsPath);
-        } else {
-            contextMenuSourcePath = workspace.rootPath;
-        }
-
-        let componentDir = `${contextMenuSourcePath}`;
-        if(globalConfig.generateFolder) {
-            componentDir = `${contextMenuSourcePath}/${this.setName(componentName)}`;
-            fse.mkdirsSync(componentDir);
-        }
-
-        return componentDir;
+    if (uri && fs.lstatSync(uri.fsPath).isDirectory()) {
+      contextMenuSourcePath = uri.fsPath;
+    } else if (uri) {
+      contextMenuSourcePath = path.dirname(uri.fsPath);
+    } else {
+      contextMenuSourcePath = workspace.rootPath;
     }
 
-    public static createComponent(componentDir: string, componentName: string, suffix: string = '-container'): Observable<string> {
-        const globalConfig: GlobalInterface = getConfig().get('global');
-        const componentConfig: ComponentInterface = getConfig().get('mainFile');
-        let templateFileName = this.assetRootDir + `/templates/component${suffix}.template`;
-        if (componentConfig.template) {
-            templateFileName = this.resolveWorkspaceRoot(componentConfig.template);
-        }
+    return contextMenuSourcePath;
+  }
 
-        const compName = this.setName(componentName);
-        const removeLifecycleType = globalConfig.lifecycleType == 'legacy' ? 'reactv16' : 'legacy';
-        console.log('removeLifecycleType', removeLifecycleType);
+  public static createComponentDir(
+    uri: any,
+    componentName: string,
+    skipFolder: boolean = false
+  ): string {
+    const contextMenuSourcePath = this.getContextMenuSourcePath(uri);
+    let componentDir = `${contextMenuSourcePath}`;
 
-        let componentContent = fs.readFileSync( templateFileName ).toString()
-            .replace(/{componentName}/g, compName)
-            .replace(/{quotes}/g, this.getQuotes(globalConfig))
-
-        // console.log('content', componentContent);
-
-        componentContent = removeBetweenTags(globalConfig.lifecycleType, removeLifecycleType, componentContent);
-
-        let filename = `${componentDir}/${compName}.${componentConfig.extension}`;
-
-        if (componentConfig.create) {
-            return this.createFile(filename, componentContent)
-                .map(result => filename);
-        }
-        else {
-            return Observable.of('');
-        }
-    };
-
-    public static createIndexFile(componentDir: string, componentName: string): Observable<string> {
+    if (!skipFolder) {
       const globalConfig: GlobalInterface = getConfig().get('global');
-      const indexConfig: IndexInterface = getConfig().get('indexFile');
+      if (globalConfig.generateFolder) {
+        componentDir = `${contextMenuSourcePath}/${this.setName(
+          componentName,
+          globalConfig.case
+        )}`;
+        fse.mkdirsSync(componentDir);
+      }
+    }
 
-      let templateFileName = this.assetRootDir + '/templates/index.template';
-        if (indexConfig.template) {
-            templateFileName = this.resolveWorkspaceRoot(indexConfig.template);
-        }
+    return componentDir;
+  }
 
-        const compName = this.setName(componentName);
-        let indexContent = fs.readFileSync( templateFileName ).toString()
-            .replace(/{componentName}/g, compName)
-            .replace(/{quotes}/g, this.getQuotes(globalConfig));
+  public static createNextPage(
+    componentDir: string,
+    nextjsPageName: string,
+    suffix: string = ''
+  ): Observable<string> {
+    const globalConfig: GlobalInterface = getConfig().get('global');
+    const pageConfig: IndexInterface = getConfig().get('nextPage');
 
-        let filename = `${componentDir}/index.${indexConfig.extension}`;
-        if (indexConfig.create) {
-            return this.createFile(filename, indexContent)
-                .map(result => filename);
-        }
-        else {
-            return Observable.of('');
-        }
-    };
+    let templateFileName =
+      this.assetRootDir + `/templates/next${suffix}.template`;
+    if (pageConfig.template) {
+      templateFileName = this.resolveWorkspaceRoot(pageConfig.template);
+    }
 
-    public static createCSS(componentDir: string, componentName: string): Observable<string> {
+    const pageName = this.setName(nextjsPageName);
+    const pageKebabName = this.setName(nextjsPageName, 'param');
+
+    let pageContent = fs
+      .readFileSync(templateFileName)
+      .toString()
+      .replace(/{pageName}/g, pageName)
+      .replace(/{pageKebabName}/g, pageKebabName)
+      .replace(/{quotes}/g, this.getQuotes(globalConfig));
+
+    let filename = `${componentDir}/${pageKebabName}.${pageConfig.extension}`;
+
+    return this.createFile(filename, pageContent).map(() => filename);
+  }
+
+  public static createComponent(
+    componentDir: string,
+    componentName: string,
+    suffix: string = '-container'
+  ): Observable<string> {
+    const componentConfig: ComponentInterface = getConfig().get('mainFile');
+    if (componentConfig.create) {
       const globalConfig: GlobalInterface = getConfig().get('global');
-      const styleConfig: CSSInterface = getConfig().get('styleFile');
-      const styleTemplate = getStyleSheetExtTemplate();
-      let templateFileName = `${this.assetRootDir}/templates/${styleTemplate.template}`;
-      // if (styleConfig.template) {
-      //     templateFileName = this.resolveWorkspaceRoot(styleConfig.template);
-      // }
+      let templateFileName =
+        this.assetRootDir + `/templates/component${suffix}.template`;
+      if (componentConfig.template) {
+        templateFileName = this.resolveWorkspaceRoot(componentConfig.template);
+      }
 
       const compName = this.setName(componentName);
-      let cssContent = fs.readFileSync( templateFileName ).toString()
+      const fileName = this.setName(componentName, globalConfig.case);
+
+      let componentContent = fs
+        .readFileSync(templateFileName)
+        .toString()
         .replace(/{componentName}/g, compName)
         .replace(/{quotes}/g, this.getQuotes(globalConfig));
 
-      let filename = `${componentDir}/${compName}${styleConfig.suffix}.${styleTemplate.ext}`;
-      if (styleConfig.create) {
-        return this.createFile(filename, cssContent)
-          .map(result => filename);
-      }
-      else {
-        return Observable.of('');
-      }
-    };
+      // console.log('content', componentContent);
 
-    public static resolveWorkspaceRoot = (path: string): string => path.replace('${workspaceFolder}', workspace.rootPath)
+      let path = `${componentDir}/${fileName}.${componentConfig.extension}`;
 
-    private static getQuotes = (config: GlobalInterface) => config.quotes === "double" ? '"' : '\''
-
-    public static setName = (name: string) => pascalCase(name)
-}
-
-export function logger(type: 'success'|'warning'|'error', msg: string = '') {
-    switch (type) {
-    case 'success':
-        return window.setStatusBarMessage(`Success: ${msg}`, 5000);
-        // return window.showInformationMessage(`Success: ${msg}`);
-    case 'warning':
-        return window.showWarningMessage(`Warning: ${msg}`);
-    case 'error':
-        return window.showErrorMessage(`Failed: ${msg}`);
+      return this.createFile(path, componentContent).map(() => path);
+    } else {
+      return Observable.of('');
     }
   }
 
+  public static createIndexFile(
+    componentDir: string,
+    componentName: string
+  ): Observable<string> {
+    const indexConfig: IndexInterface = getConfig().get('indexFile');
+    if (indexConfig.create) {
+      const globalConfig: GlobalInterface = getConfig().get('global');
+
+      let templateFileName = this.assetRootDir + '/templates/index.template';
+      if (indexConfig.template) {
+        templateFileName = this.resolveWorkspaceRoot(indexConfig.template);
+      }
+
+      const compName = this.setName(componentName, globalConfig.case);
+
+      let indexContent = fs
+        .readFileSync(templateFileName)
+        .toString()
+        .replace(/{componentName}/g, compName)
+        .replace(/{quotes}/g, this.getQuotes(globalConfig));
+
+      let path = `${componentDir}/index.${indexConfig.extension}`;
+
+      return this.createFile(path, indexContent).map((result) => path);
+    } else {
+      return Observable.of('');
+    }
+  }
+
+  public static createCSS(
+    componentDir: string,
+    componentName: string
+  ): Observable<string> {
+    const globalConfig: GlobalInterface = getConfig().get('global');
+    const styleConfig: CSSInterface = getConfig().get('styleFile');
+    const styleTemplate = getStyleSheetExtTemplate();
+    let templateFileName = `${this.assetRootDir}/templates/${styleTemplate.template}`;
+    // if (styleConfig.template) {
+    //     templateFileName = this.resolveWorkspaceRoot(styleConfig.template);
+    // }
+
+    const compName = this.setName(componentName);
+    const fileName = this.setName(componentName, globalConfig.case);
+
+    let cssContent = fs
+      .readFileSync(templateFileName)
+      .toString()
+      .replace(/{componentName}/g, compName)
+      .replace(/{quotes}/g, this.getQuotes(globalConfig));
+
+    let path = `${componentDir}/${fileName}${styleConfig.suffix}.${styleTemplate.ext}`;
+    if (styleConfig.create) {
+      return this.createFile(path, cssContent).map((result) => path);
+    } else {
+      return Observable.of('');
+    }
+  }
+
+  public static resolveWorkspaceRoot = (path: string): string =>
+    path.replace('${workspaceFolder}', workspace.rootPath);
+
+  private static getQuotes = (config: GlobalInterface) =>
+    config.quotes === 'double' ? '"' : "'";
+
+  public static setName = (
+    name: string,
+    type: 'pascal' | 'param' = 'pascal'
+  ) => {
+    switch (type) {
+      case 'param':
+        return paramCase(name);
+      default:
+        return pascalCase(name);
+    }
+  };
+}
+
+export function logger(
+  type: 'success' | 'warning' | 'error',
+  msg: string = ''
+) {
+  switch (type) {
+    case 'success':
+      return window.setStatusBarMessage(`Success: ${msg}`, 5000);
+    // return window.showInformationMessage(`Success: ${msg}`);
+    case 'warning':
+      return window.showWarningMessage(`Warning: ${msg}`);
+    case 'error':
+      return window.showErrorMessage(`Failed: ${msg}`);
+  }
+}
+
 export default function getConfig(uri?: Uri) {
-    return workspace.getConfiguration('ACReactComponentGenerator', uri) as any;
+  return workspace.getConfiguration('ComponentGenerator', uri) as any;
 }
 
 export function getStyleSheetExtTemplate() {
   const configuredView = getConfig().get('styleFile.type');
   let styleTemplate = {
-    ext: 'css',
+    ext: 'module.css',
     template: 'css.template',
   };
 
   switch (configuredView) {
-    case 'styled-components (.js)':
-      styleTemplate = { ext: 'js', template: 'css-styled.template' };
+    case 'css (.css)':
+      styleTemplate.ext = 'css';
       break;
-    case 'emotion (.js)':
-      styleTemplate = { ext: 'js', template: 'css-emotion.template' };
-      break;
-    case 'sass (.sass)':
-      styleTemplate.ext = 'sass';
-      break;
-    case 'sass (.scss)':
+    case 'scss (.scss)':
       styleTemplate.ext = 'scss';
       break;
     case 'less (.less)':
       styleTemplate.ext = 'less';
       break;
+    case 'module.scss (.scss)':
+      styleTemplate.ext = 'module.sass';
+      break;
+    case 'module.less (.less)':
+      styleTemplate.ext = 'module.less';
+      break;
   }
 
   return styleTemplate;
-}
-
-export function removeBetweenTags(remainTag, removedtag, content) {
-  const escapeRegExp = s => s.replace(/[-\/\\^$*+?.()|[\]{}]/g, "\\$&");
-  const regexPattern = RegExp(`${escapeRegExp(`<${removedtag}>`)}([\\S\\s]+?)${escapeRegExp(`</${removedtag}>`)}`, "gi");
-  const removeOnlyTagsPattern = new RegExp(`<(${escapeRegExp(remainTag)}|/${escapeRegExp(remainTag)})[^>]{0,}>`, "gi");
-
-  return content.replace(regexPattern, '').replace(removeOnlyTagsPattern, '');
 }

@@ -40,8 +40,11 @@
     "next"
   ],
   "activationEvents": [
-    "onCommand:extension.genReactFiles",
-    "onCommand:extension.genReactTypescriptStatelessComponentFiles"
+    "onCommand:extension.genReactTSFunctionalComponentFiles",
+    "onCommand:extension.genNextjsTSFunctionalComponentFiles",
+    "onCommand:extension.genNextjsSSGPageFiles",
+    "onCommand:extension.genNextjsSSRPageFiles",
+    "onCommand:extension.genNextjsPageFiles"
   ],
   "main": "./out/src/extension",
   "icon": "assets/images/icon.png",
@@ -58,6 +61,11 @@
           ],
           "default": "single",
           "description": "Options: `single` or `double` Result: `'`  or  `\"`"
+        },
+        "ComponentGenerator.global.case": {
+          "type": "boolean",
+          "default": "param",
+          "description": "Generate the folders and files using the pascal or param case"
         },
         "ComponentGenerator.global.generateFolder": {
           "type": "boolean",
@@ -83,10 +91,10 @@
           "type": "string",
           "enum": [
             "css (.css)",
-            "sass (.scss)",
+            "scss (.scss)",
             "less (.less)",
             "module.css (.module.css)",
-            "module.sass (.module.scss)",
+            "module.scss (.module.scss)",
             "module.less (.module.less)"
           ],
           "default": "module.css (.module.css)",
@@ -101,17 +109,22 @@
           "type": "string",
           "default": "ts",
           "description": "The extension of generated component index file"
+        },
+        "ComponentGenerator.nextPage.extension": {
+          "type": "string",
+          "default": "tsx",
+          "description": "The extension of generated nextjs page file"
         }
       }
     },
     "commands": [
       {
         "command": "extension.genReactTSFunctionalComponentFiles",
-        "title": "New React TypeScript Component"
+        "title": "New React TS Component"
       },
       {
         "command": "extension.genNextjsTSFunctionalComponentFiles",
-        "title": "New Next.js TypeScript Component"
+        "title": "New Next.js TS Component"
       },
       {
         "command": "extension.genNextjsSSGPageFiles",
@@ -129,24 +142,24 @@
     "menus": {
       "explorer/context": [
         {
-          "command": "extension.genTSFunctionalComponentFiles",
-          "group": "1_modification"
+          "command": "extension.genReactTSFunctionalComponentFiles",
+          "group": "2_workspace"
         },
         {
           "command": "extension.genNextjsTSFunctionalComponentFiles",
-          "group": "1_modification"
+          "group": "2_workspace"
         },
         {
           "command": "extension.genNextjsSSGPageFiles",
-          "group": "1_modification"
+          "group": "2_workspace"
         },
         {
           "command": "extension.genNextjsSSRPageFiles",
-          "group": "1_modification"
+          "group": "2_workspace"
         },
         {
           "command": "extension.genNextjsPageFiles",
-          "group": "1_modification"
+          "group": "2_workspace"
         }
       ]
     }

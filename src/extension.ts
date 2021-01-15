@@ -11,12 +11,12 @@ const TEMPLATE_SUFFIX_SEPERATOR = '-';
 // this method is called when your extension is activated
 // your extension is activated the very first time the command is executed
 export function activate(context: ExtensionContext) {
-  const createComponent = (uri, suffix: string = '') => {
+  const createComponent = (uri, suffix: string = '', isPage) => {
     // Display a dialog to the user
     let enterComponentNameDialog$ = Observable.from(
       window.showInputBox({
         prompt:
-          'Please enter component name in camelCase then I can convert it to PascalCase for you.',
+          'Please enter component name in camelCase then I can convert it to PascalCase or KebabCase for you.',
       })
     );
 
@@ -27,7 +27,16 @@ export function activate(context: ExtensionContext) {
           throw new Error('Component name can not be empty!');
         }
         let componentName = paramCase(val);
-        let componentDir = FileHelper.createComponentDir(uri, componentName);
+        let componentDir = FileHelper.createComponentDir(
+          uri,
+          componentName,
+          isPage
+        );
+        if (isPage) {
+          return Observable.forkJoin(
+            FileHelper.createNextPage(componentDir, componentName, suffix)
+          );
+        }
 
         return Observable.forkJoin(
           FileHelper.createComponent(componentDir, componentName, suffix),
@@ -35,7 +44,9 @@ export function activate(context: ExtensionContext) {
           FileHelper.createCSS(componentDir, componentName)
         );
       })
-      .concatMap((result) => Observable.from(result))
+      .concatMap((result) => {
+        return Observable.from(result);
+      })
       .filter((path) => path.length > 0)
       .first()
       .concatMap((filename) =>
@@ -55,35 +66,34 @@ export function activate(context: ExtensionContext) {
         }
       })
       .subscribe(
-        (c) => logger('success', 'React component successfully created!'),
+        (c) => logger('success', 'successfully created!'),
         (err) => logger('error', err.message)
       );
   };
 
   const componentArray = [
     {
-      type: 'container',
-      commandId: 'extension.genReactContainerComponentFiles',
+      type: 'react-fc',
+      commandId: 'extension.genReactTSFunctionalComponentFiles',
     },
     {
-      type: 'stateless',
-      commandId: 'extension.genReactStatelessComponentFiles',
+      type: 'next-fc',
+      commandId: 'extension.genNextjsTSFunctionalComponentFiles',
     },
     {
-      type: 'reduxContainer',
-      commandId: 'extension.genReactReduxContainerComponentFiles',
+      type: 'ssg-page',
+      commandId: 'extension.genNextjsSSGPageFiles',
+      page: true,
     },
     {
-      type: 'reduxStateless',
-      commandId: 'extension.genReactReduxStatelessComponentFiles',
+      type: 'ssr-page',
+      commandId: 'extension.genNextjsSSRPageFiles',
+      page: true,
     },
     {
-      type: 'tsContainer',
-      commandId: 'extension.genReactTypescriptContainerComponentFiles',
-    },
-    {
-      type: 'tsStateless',
-      commandId: 'extension.genReactTypescriptStatelessComponentFiles',
+      type: 'page',
+      commandId: 'extension.genNextjsPageFiles',
+      page: true,
     },
   ];
 
@@ -92,8 +102,9 @@ export function activate(context: ExtensionContext) {
   // The commandId parameter must match the command field in package.json
   componentArray.forEach((c) => {
     const suffix = `${TEMPLATE_SUFFIX_SEPERATOR}${c.type}`;
+    const isPage = c.page || false;
     const disposable = commands.registerCommand(c.commandId, (uri) =>
-      createComponent(uri, suffix)
+      createComponent(uri, suffix, isPage)
     );
 
     // Add to a list of disposables which are disposed when this extension is deactivated.
