@@ -1,0 +1,19 @@
+import React from {quotes}react{quotes};
+//import { Test } from './{componentName}.styles';
+
+interface {componentName}Props{
+  foo:string
+}
+
+const {componentName} = (props:{componentName}Props) => (
+  <div className="{componentName}Wrapper">
+    {props.foo}
+  </div>
+);
+
+
+{componentName}.defaultProps = {
+  foo: 'bar',
+};
+
+ export default {componentName}

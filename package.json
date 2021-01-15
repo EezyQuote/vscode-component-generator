@@ -1,0 +1,176 @@
+{
+  "name": "vscode-component-generator",
+  "displayName": "EezyQuote Component Generator",
+  "description": "Generates component files automatically",
+  "version": "0.0.1",
+  "publisher": "eezyquote",
+  "author": {
+    "name": "Paul van Dyk",
+    "email": "paul@eezyquote.com"
+  },
+  "homepage": "https://github.com/EezyQuote/vscode-react-component-generator",
+  "galleryBanner": {
+    "color": "#0273D4",
+    "theme": "dark"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/EezyQuote/vscode-react-component-generator.git"
+  },
+  "bugs": {
+    "url": "https://github.com/EezyQuote/vscode-react-component-generator/issues"
+  },
+  "license": "MIT",
+  "engines": {
+    "vscode": "^1.29.0"
+  },
+  "categories": [
+    "Programming Languages",
+    "Snippets",
+    "Other"
+  ],
+  "keywords": [
+    "vscode-react",
+    "react",
+    "react component",
+    "react generate component",
+    "function component",
+    "typescript",
+    "next.js pages",
+    "next"
+  ],
+  "activationEvents": [
+    "onCommand:extension.genReactFiles",
+    "onCommand:extension.genReactTypescriptStatelessComponentFiles"
+  ],
+  "main": "./out/src/extension",
+  "icon": "assets/images/icon.png",
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "title": "React Component Generator",
+      "properties": {
+        "ComponentGenerator.global.quotes": {
+          "type": "string",
+          "enum": [
+            "single",
+            "double"
+          ],
+          "default": "single",
+          "description": "Options: `single` or `double` Result: `'`  or  `\"`"
+        },
+        "ComponentGenerator.global.generateFolder": {
+          "type": "boolean",
+          "default": true,
+          "description": "Generate or not separate folder for newly created component"
+        },
+        "ComponentGenerator.mainFile.create": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to generate component's main file or not. e.g.: ComponentName.(extension)"
+        },
+        "ComponentGenerator.mainFile.extension": {
+          "type": "string",
+          "default": "tsx",
+          "description": "The extension of generated component file"
+        },
+        "ComponentGenerator.styleFile.create": {
+          "type": "boolean",
+          "default": false,
+          "description": "Whether to generate component's style file or not. e.g.: ComponentName.(extension)"
+        },
+        "ComponentGenerator.styleFile.type": {
+          "type": "string",
+          "enum": [
+            "css (.css)",
+            "sass (.scss)",
+            "less (.less)",
+            "module.css (.module.css)",
+            "module.sass (.module.scss)",
+            "module.less (.module.less)"
+          ],
+          "default": "module.css (.module.css)",
+          "description": "The type of stylesheet file to create"
+        },
+        "ComponentGenerator.indexFile.create": {
+          "type": "boolean",
+          "default": true,
+          "description": "Whether to generate component's index file or not. e.g.: index.(extension)"
+        },
+        "ComponentGenerator.indexFile.extension": {
+          "type": "string",
+          "default": "ts",
+          "description": "The extension of generated component index file"
+        }
+      }
+    },
+    "commands": [
+      {
+        "command": "extension.genReactTSFunctionalComponentFiles",
+        "title": "New React TypeScript Component"
+      },
+      {
+        "command": "extension.genNextjsTSFunctionalComponentFiles",
+        "title": "New Next.js TypeScript Component"
+      },
+      {
+        "command": "extension.genNextjsSSGPageFiles",
+        "title": "New Next.js SSG Page"
+      },
+      {
+        "command": "extension.genNextjsSSRPageFiles",
+        "title": "New Next.js SSR Page"
+      },
+      {
+        "command": "extension.genNextjsPageFiles",
+        "title": "New Next.js Page"
+      }
+    ],
+    "menus": {
+      "explorer/context": [
+        {
+          "command": "extension.genTSFunctionalComponentFiles",
+          "group": "1_modification"
+        },
+        {
+          "command": "extension.genNextjsTSFunctionalComponentFiles",
+          "group": "1_modification"
+        },
+        {
+          "command": "extension.genNextjsSSGPageFiles",
+          "group": "1_modification"
+        },
+        {
+          "command": "extension.genNextjsSSRPageFiles",
+          "group": "1_modification"
+        },
+        {
+          "command": "extension.genNextjsPageFiles",
+          "group": "1_modification"
+        }
+      ]
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "postinstall": "node ./node_modules/vscode/bin/install"
+  },
+  "devDependencies": {
+    "@types/mocha": "^2.2.42",
+    "@types/node": "^8.10.25",
+    "eslint": "^4.11.0",
+    "generator-code": "^1.3.9",
+    "mocha": "^2.3.3",
+    "typescript": "^2.6.1",
+    "vscode": "^1.1.21",
+    "yo": "^3.1.1"
+  },
+  "dependencies": {
+    "change-case": "^3.0.2",
+    "fs": "^0.0.1-security",
+    "fs-extra": "^0.30.0",
+    "lodash": "^4.17.11",
+    "rxjs": "^5.0.0-rc.1"
+  }
+}
