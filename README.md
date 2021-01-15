@@ -1,15 +1,7 @@
-# React Component Generation Extension for VSCode
+# React Component Generation Extension for VSCode (includes next.js pages)
 
-(**vscode-react-component-generator**)
-
-[![Version](https://vsmarketplacebadge.apphb.com/version/abdullahceylan.vscode-react-component-generator.svg)](https://marketplace.visualstudio.com/items?itemName=abdullahceylan.vscode-react-component-generator)
-[![Installs](https://vsmarketplacebadge.apphb.com/installs/abdullahceylan.vscode-react-component-generator.svg)](https://marketplace.visualstudio.com/items?itemName=abdullahceylan.vscode-react-component-generator)
 [![The MIT License](https://flat.badgen.net/badge/license/MIT/orange)](http://opensource.org/licenses/MIT)
-[![GitHub](https://flat.badgen.net/github/release/abdullahceylan/vscode-react-component-generator)](https://github.com/abdullahceylan/vscode-react-component-generator/releases)
-
-## Other Versions
-
-[Please click here for React Native version](https://marketplace.visualstudio.com/items?itemName=abdullahceylan.vscode-react-native-component-generator)
+[![GitHub](https://flat.badgen.net/github/release/EezyQuote/vscode-component-generator)](https://github.com/EezyQuote/vscode-component-generator/releases)
 
 ## Description
 
@@ -24,6 +16,8 @@ The extension automatically creates folder for react component containing :
 - `ComponentName.module.css` (for `module css` style option)
 - `ComponentName.module.scss` (for `module sass` style option)
 - `ComponentName.module.less` (for `module less` style option)
+
+The extension can also automatically create SSG, SSR and normal pages for next.js
 
 <!-- ## Installation
 
