@@ -1,15 +1,10 @@
-interface {componentName}Props{
-  foo:string
+interface {componentName}Props{ }
+
+export default function {componentName} = (props:{componentName}Props) => {
+  return (
+    <div className="{pageKebabName}-component">
+      {componentName}
+    </div>
+  )
 }
 
-const {componentName} = (props:{componentName}Props) => (
-  <div className="{componentName}-component">
-    {props.foo}
-  </div>
-);
-
-{componentName}.defaultProps = {
-  foo: 'bar',
-};
-
- export default {componentName}

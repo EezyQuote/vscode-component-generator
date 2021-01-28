@@ -3,22 +3,22 @@
   "displayName": "Component Generator",
   "description": "Generates react component files or next.js pages automatically",
   "version": "0.0.1",
-  "publisher": "eezyquote",
+  "publisher": "EezyQuote",
   "author": {
     "name": "Paul van Dyk",
     "email": "paul@eezyquote.com"
   },
-  "homepage": "https://github.com/EezyQuote/vscode-react-component-generator",
+  "homepage": "https://github.com/EezyQuote/vscode-component-generator",
   "galleryBanner": {
     "color": "#0273D4",
     "theme": "dark"
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/EezyQuote/vscode-react-component-generator.git"
+    "url": "https://github.com/EezyQuote/vscode-component-generator.git"
   },
   "bugs": {
-    "url": "https://github.com/EezyQuote/vscode-react-component-generator/issues"
+    "url": "https://github.com/EezyQuote/vscode-component-generator/issues"
   },
   "license": "MIT",
   "engines": {
@@ -165,7 +165,8 @@
     }
   },
   "scripts": {
-    "prepublish": "vsce package",
+    "package": "vsce package",
+    "prepublish": "npm run package",
     "watch": "tsc -watch -p ./",
     "postinstall": "node ./node_modules/vscode/bin/install"
   },

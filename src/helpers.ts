@@ -101,11 +101,13 @@ export class FileHelper {
 
       const compName = this.setName(componentName);
       const fileName = this.setName(componentName, globalConfig.case);
+      const pageKebabName = this.setName(componentName, 'param');
 
       let componentContent = fs
         .readFileSync(templateFileName)
         .toString()
         .replace(/{componentName}/g, compName)
+        .replace(/{pageKebabName}/g, pageKebabName)
         .replace(/{quotes}/g, this.getQuotes(globalConfig));
 
       // console.log('content', componentContent);
